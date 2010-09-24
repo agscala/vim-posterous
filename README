@@ -1,0 +1,9 @@
+Setup:
+drop posterous.vim in ~/.vim/plugin
+or
+open vim and run `:so /path/to/posterous.vim`
+
+Run `:PosterousTemplate` to generate login/blog options
+Run `:PosterousSubmit` to submit your blog post to posterous
+
+yes, it's buggy as hell
