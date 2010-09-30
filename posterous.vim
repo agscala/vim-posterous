@@ -61,13 +61,13 @@ class PostForm():
 			return False
 	
 	def parse_fields(self):
-		for line in vim.current.buffer.range(0, 9):
+		for line in vim.current.buffer.range(0, len(self.form_lines)):
 			# line format-- "FIELD: DATA"
 			if ":" in line:
 				field = line.split(":")[0].lower()
 				data = "".join(line.split(":")[1:]).strip()
 				self.data[field] = data
-		self.data['body'] = "\n".join(vim.current.buffer[9:])
+		self.data['body'] = "<markdown>" + "\r\n".join(vim.current.buffer[len(self.form_lines):]) + "</markdown>"
 
 	def parse_data(self):
 		self.data = {
@@ -106,6 +106,7 @@ class Posterous:
 		self.authentication = { "Authorization": "Basic %s" % b64encode("%s:%s" % (self.email, self.password)) }
 
 	def get_login(self):
+		print "Enter your login credentials:\n"
 		self.email = python_input("Email Address: ")
 		self.password = python_input("Password: ")
 
@@ -138,10 +139,8 @@ class Posterous:
 	def select_site(self):
 		self.fetch_sites()
 
-		self.sites = []
 		options = []
 		for site_id, site_name in self.sites:
-			self.sites += [(site_name, site_id)]
 			options += [(site_name, lambda: site_id)]
 
 		result = Menu("Select a site to upload your post to:", options)
@@ -150,14 +149,14 @@ class Posterous:
 	def submit_post(self, site_id, data):
 		request = urllib2.Request(self.newpost_url, None, self.authentication)
 		payload = urllib2.urlopen(request, urllib.urlencode(data))
+		print "Post submitted!"
 
 def make_post():
 	postform = PostForm()
 	posterous = Posterous()
 	site = posterous.select_site()
 	postform.parse_fields()
-	print postform.data
-	# posterous.submit_post(site, postform.data)
+	posterous.submit_post(site, postform.data)
 
 def create_form():
 	postform = PostForm()
@@ -167,8 +166,7 @@ def create_form():
 	postform.insert_form()
 
 Menu("Posterous.\nHere are things you can currently do:", [
-	("Submit blog post to posterous.", make_post),
-	("Insert blog posting template.", create_form)
+	("Submit blog post to posterous.", make_post), ("Insert blog posting template.", create_form)
 	])
 
 # site = posterous.select_site()
