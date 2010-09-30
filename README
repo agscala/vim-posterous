@@ -3,7 +3,8 @@ drop posterous.vim in ~/.vim/plugin
 or
 open vim and run `:so /path/to/posterous.vim`
 
-Run `:PosterousTemplate` to generate login/blog options
-Run `:PosterousSubmit` to submit your blog post to posterous
+Run `:Posterous` in vim.
 
-yes, it's buggy as hell
+Not all checks are made before you submit to the website.
+Insert a template first before uploading
+

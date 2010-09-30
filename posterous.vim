@@ -106,7 +106,7 @@ class Posterous:
 		self.authentication = { "Authorization": "Basic %s" % b64encode("%s:%s" % (self.email, self.password)) }
 
 	def get_login(self):
-		print "Enter your login credentials:\n"
+		print "Enter your login credentials.\n"
 		self.email = python_input("Email Address: ")
 		self.password = python_input("Password: ")
 
@@ -135,6 +135,7 @@ class Posterous:
 			site_name = site.childNodes[3].firstChild.data
 			self.sites.append((site_id, site_name))
 			index += 2
+		# BTW fuck this XML library. I wish there was a better builtin one.
 	
 	def select_site(self):
 		self.fetch_sites()
@@ -151,13 +152,6 @@ class Posterous:
 		payload = urllib2.urlopen(request, urllib.urlencode(data))
 		print "Post submitted!"
 
-def make_post():
-	postform = PostForm()
-	posterous = Posterous()
-	site = posterous.select_site()
-	postform.parse_fields()
-	posterous.submit_post(site, postform.data)
-
 def create_form():
 	postform = PostForm()
 
@@ -165,12 +159,22 @@ def create_form():
 	print PostForm.usage()
 	postform.insert_form()
 
-Menu("Posterous.\nHere are things you can currently do:", [
-	("Submit blog post to posterous.", make_post), ("Insert blog posting template.", create_form)
-	])
+def make_post():
+	postform = PostForm()
+	posterous = Posterous()
+	if postform.is_rendered():
+		site = posterous.select_site()
+		postform.parse_fields()
+		posterous.submit_post(site, postform.data)
+	else:
+		print "You need to insert a posting template into the buffer before uploading to Posterous.\nI'll insert it for you.\n"
+		create_form()
 
-# site = posterous.select_site()
-# post_form.insert_form()
+
+Menu("Posterous.\nHere are things you can currently do:", [
+	("Submit blog post to posterous.", make_post),
+	("Insert blog posting template.", create_form)
+	])
 
 endpython
 endfun
