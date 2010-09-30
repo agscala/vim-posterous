@@ -18,24 +18,39 @@ def insert_line(line):
 	vim.command(":0put='%s'" % line)
 
 #--------------------------------#
+def Menu(header_text, options):
+	""" Pass in a list of ("description", result_function) tuples """
+
+	print header_text
+	for num, option in enumerate(options):
+		description, function = option
+		print "%i) %s" % (num + 1, description)
+	print "0) Cancel"
+	
+	selection = python_input("\n>>> ")
+	selection = int(selection)
+
+	if 0 < selection < len(options):
+		selected_option = options[int(selection)-1]
+		desc, func = selected_option
+		func()
 
 class PostForm():
 	form_lines = [
-		"EMAIL: ",
-		"PASSWORD: ",
-		"AUTOPOST: ",
-		"PRIVATE: ",
 		"TITLE: ",
 		"TAGS: ",
+		"AUTOPOST: ",
+		"PRIVATE: ",
 		"",
-		"v v v v v v v BODY v v v v v v v",
+		"========== v v v POST BODY v v v ==========",
 	]
 	def __init__(self):
 		data = {}
 	
 	def insert_form(self):
-		for line in self.form_lines[::-1]:
-			insert_line(line)
+		if not self.is_rendered():
+			for line in self.form_lines[::-1]:
+				insert_line(line)
 
 	def is_rendered(self):
 		""" Check to see if the form has been rendered on the page or not. """
@@ -115,21 +130,18 @@ class Posterous:
 	def submit_post(self, data):
 		pass
 
+Menu("Pick something damnit", [
+	("Option 1", lambda: "one"),
+	("Option 2", lambda: "two"),
+	])
 posterous = Posterous()
 # posterous.select_site()
 post_form = PostForm()
+# post_form.insert_form()
 
 endpython
 endfun
 
 " ------------------------------------------------------------------------------
-fun! PosterousTemplate()
-python << endpython
-
-
-
-	
-endpython
-endfun
 
 command! -nargs=* -complete=file Posterous call Posterous()
