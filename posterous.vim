@@ -1,3 +1,9 @@
+TITLE: 
+TAGS: 
+AUTOPOST: 
+PRIVATE: 
+
+========== v v v POST BODY v v v ==========
 fun! Posterous()
 python << endpython
 
@@ -30,10 +36,10 @@ def Menu(header_text, options):
 	selection = python_input("\n>>> ")
 	selection = int(selection)
 
-	if 0 < selection < len(options):
+	if 0 < selection <= len(options):
 		selected_option = options[int(selection)-1]
 		desc, func = selected_option
-		func()
+		return func()
 
 class PostForm():
 	form_lines = [
@@ -76,6 +82,19 @@ class PostForm():
 			"autopost": formdata['autopost'],
 			"tags": formdata['tags'],
 		}
+	
+	@staticmethod
+	def usage():
+		return """
+==========
+  FIELDS
+==========
+TITLE: The title of your post. (default none)
+TAGS: The tags to attach to your post separated by commas. (default none)
+AUTOPOST: Autopost to your selected social media outlets. [1 On] [0 Off] (default 0)
+PRIVATE: Make this post hidden from the public. [1 hidden] [0 public] (default 0)
+BODY: The body of your post automatically wrapped with <markdown></markdown>.
+"""
 
 class Posterous:
 	newpost_url = "http://posterous.com/api/newpost"
@@ -122,21 +141,30 @@ class Posterous:
 			index += 2
 	
 	def select_site(self):
-		self.fetch_sites()
-		
 		for site_id, site_name in self.sites:
 			print site_id, site_name
 	
 	def submit_post(self, data):
 		pass
 
-Menu("Pick something damnit", [
-	("Option 1", lambda: "one"),
-	("Option 2", lambda: "two"),
+
+
+def make_post():
+	site = posterous.select_site()
+
+def create_form():
+	postform = PostForm()
+
+	print "The fields at the top of the buffer are available for your convenience.\n"
+	print PostForm.usage()
+	postform.insert_form()
+
+Menu("Posterous.\nHere are things you can currently do:", [
+	("Submit blog post to posterous.", make_post),
+	("Insert blog posting template.", create_form)
 	])
-posterous = Posterous()
-# posterous.select_site()
-post_form = PostForm()
+
+# site = posterous.select_site()
 # post_form.insert_form()
 
 endpython
