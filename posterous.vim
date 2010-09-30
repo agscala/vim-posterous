@@ -1,9 +1,3 @@
-TITLE: 
-TAGS: 
-AUTOPOST: 
-PRIVATE: 
-
-========== v v v POST BODY v v v ==========
 fun! Posterous()
 python << endpython
 
@@ -51,7 +45,7 @@ class PostForm():
 		"========== v v v POST BODY v v v ==========",
 	]
 	def __init__(self):
-		data = {}
+		self.data = {}
 	
 	def insert_form(self):
 		if not self.is_rendered():
@@ -61,7 +55,7 @@ class PostForm():
 	def is_rendered(self):
 		""" Check to see if the form has been rendered on the page or not. """
 		buffer = vim.current.buffer
-		if self.form_lines[-1] in buffer.range(0, len(self.form_lines)):
+		if self.form_lines[-1] in buffer[0:len(self.form_lines)]:
 			return True
 		else:
 			return False
@@ -69,9 +63,10 @@ class PostForm():
 	def parse_fields(self):
 		for line in vim.current.buffer.range(0, 9):
 			# line format-- "FIELD: DATA"
-			field = line.split(":")[0].lower()
-			data = "".join(line.split(":")[1:]).strip()
-			self.data[field] = data
+			if ":" in line:
+				field = line.split(":")[0].lower()
+				data = "".join(line.split(":")[1:]).strip()
+				self.data[field] = data
 		self.data['body'] = "\n".join(vim.current.buffer[9:])
 
 	def parse_data(self):
@@ -114,7 +109,7 @@ class Posterous:
 		self.email = python_input("Email Address: ")
 		self.password = python_input("Password: ")
 
-	def get_sites(self):
+	def fetch_sites(self):
 		self.get_login()
 		self.generate_authentication()
 
@@ -141,16 +136,28 @@ class Posterous:
 			index += 2
 	
 	def select_site(self):
+		self.fetch_sites()
+
+		self.sites = []
+		options = []
 		for site_id, site_name in self.sites:
-			print site_id, site_name
+			self.sites += [(site_name, site_id)]
+			options += [(site_name, lambda: site_id)]
+
+		result = Menu("Select a site to upload your post to:", options)
+		return result
 	
-	def submit_post(self, data):
-		pass
-
-
+	def submit_post(self, site_id, data):
+		request = urllib2.Request(self.newpost_url, None, self.authentication)
+		payload = urllib2.urlopen(request, urllib.urlencode(data))
 
 def make_post():
+	postform = PostForm()
+	posterous = Posterous()
 	site = posterous.select_site()
+	postform.parse_fields()
+	print postform.data
+	# posterous.submit_post(site, postform.data)
 
 def create_form():
 	postform = PostForm()
