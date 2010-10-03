@@ -8,9 +8,12 @@ import urllib2, urllib
 
 #----- Vim Helper Functions -----#
 
-def python_input(message = 'input'):
+def python_input(message = 'input', secret=False):
+	input_type = 'input'
+	if secret:
+		input_type = 'inputsecret'
 	vim.command('call inputsave()')
-	vim.command("let user_input = input('" + message + "')")
+	vim.command("let user_input = %s('%s')" % (input_type, message))
 	vim.command('call inputrestore()')
 	return vim.eval('user_input')
 
@@ -108,7 +111,7 @@ class Posterous:
 	def get_login(self):
 		print "Enter your login credentials.\n"
 		self.email = python_input("Email Address: ")
-		self.password = python_input("Password: ")
+		self.password = python_input("Password: ", secret=True)
 
 	def fetch_sites(self):
 		self.get_login()
