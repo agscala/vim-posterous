@@ -1,6 +1,8 @@
 fun! Posterous()
 python << endpython
 
+import os
+import pickle
 import vim
 from base64 import b64encode
 from xml.dom import minidom as xml_dom
@@ -119,10 +121,22 @@ class Posterous:
         credentials = b64encode("%s:%s" % (self.email, self.password))
         self.authentication = {"Authorization": "Basic %s" % credentials}
 
-    def get_login(self):
-        print "Enter your login credentials.\n"
-        self.email = python_input("Email Address: ")
-        self.password = python_input("Password: ", secret=True)
+    def get_login(self, creds='~/.vim-posterous'):
+        creds = os.path.expanduser(creds)
+        if os.path.exists(creds): 
+            data = pickle.load(file(creds))
+            print 'loading auth data from', creds
+            self.email = data['email']
+            self.password = data['password']
+        else:
+            print "Enter your login credentials.\n"
+            self.email = python_input("Email Address: ")
+            self.password = python_input("Password: ", secret=True)
+            
+            if python_input('Store on disk? (y/n)') == 'y':
+                data = dict(email=self.email, password=self.password)
+                pickle.dump(data, file(creds, 'w'))
+            
 
     def fetch_sites(self):
         self.get_login()
